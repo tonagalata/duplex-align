@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duplex Align — App</title>
+<meta name="description" content="Design the front and back of a sheet, align them with a live mirrored guide, and print duplex without guesswork.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="module" src="/src/app.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <a class="brand" href="/" title="Back to duplexalign home">
+      <span class="mark"></span>Duplex Align
+    </a>
+    <button class="tbtn rail-toggle" id="toggleLeftRail" title="Tools">☰ Tools</button>
+    <input class="title-input mono" id="titleInput" value="Untitled Project" spellcheck="false">
+
+    <div class="side-tabs">
+      <button id="tabFront" class="active">Front</button>
+      <button id="tabBack">Back</button>
+    </div>
+
+    <div class="zoomgroup">
+      <button id="zoomOut" title="Zoom out">–</button>
+      <span class="zoomval mono" id="zoomVal">100%</span>
+      <button id="zoomIn" title="Zoom in">+</button>
+      <button id="zoomFit" title="Fit to window" style="width:auto;padding:0 6px;font-size:10.5px;">Fit</button>
+    </div>
+
+    <button class="tbtn toggle on" id="toggleGuides">Guides</button>
+    <button class="tbtn toggle on" id="toggleGhost">Ghost: other side</button>
+
+    <div class="spacer"></div>
+
+    <a class="coffee-btn" href="https://buy.stripe.com/8x228r9HS0t9a131sbg3600" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path d="M4 9h13a3 3 0 010 6h-1M4 9v7a3 3 0 003 3h6a3 3 0 003-3v-1M4 9V6a1 1 0 011-1h9a1 1 0 011 1v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Buy me a coffee
+    </a>
+    <button class="tbtn" id="newProjectBtn">New</button>
+    <button class="tbtn" id="loadBtn">Open…</button>
+    <input type="file" id="loadFile" accept="application/json,.json">
+    <button class="tbtn primary" id="saveBtn">Save Project</button>
+    <button class="tbtn accent" id="printBtn">Print Both Sides</button>
+    <button class="tbtn rail-toggle" id="toggleRightRail" title="Properties">Properties</button>
+  </header>
+
+  <div class="sheetbar">
+    <span class="section-label" style="margin:0;">Sheets</span>
+    <div class="sheet-strip" id="sheetStrip"></div>
+    <button class="tbtn" id="addSheetBtn">+ Add sheet</button>
+    <button class="tbtn" id="dupSheetBtn">Duplicate</button>
+    <button class="tbtn" id="delSheetBtn">Delete</button>
+    <div class="hint" style="margin:0 0 0 4px;">Each sheet prints as its own front + back, in order — matching a printer's duplex feed.</div>
+  </div>
+
+  <div class="body">
+    <aside class="rail left">
+      <div class="section-label">Add to canvas</div>
+      <div class="add-grid">
+        <button class="add-btn" id="addText">
+          <svg viewBox="0 0 24 24"><path d="M4 6h16M12 6v13M9 19h6"/></svg>
+          Text
+        </button>
+        <button class="add-btn" id="addImageBtn">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-5 5"/></svg>
+          Image
+          <input type="file" id="addImageFile" accept="image/*">
+        </button>
+        <button class="add-btn" id="addRect">
+          <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1"/></svg>
+          Rectangle
+        </button>
+        <button class="add-btn" id="addEllipse">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="6.5"/></svg>
+          Ellipse
+        </button>
+      </div>
+
+      <div class="section-label">Paper</div>
+      <div class="field">
+        <label>Size</label>
+        <select id="paperSize">
+          <option value="letter">Letter — 8.5 × 11 in</option>
+          <option value="a4">A4 — 210 × 297 mm</option>
+          <option value="legal">Legal — 8.5 × 14 in</option>
+          <option value="a5">A5 — 148 × 210 mm</option>
+          <option value="tabloid">Tabloid — 11 × 17 in</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Orientation</label>
+        <div class="seg" id="orientSeg">
+          <button data-v="portrait" class="active">Portrait</button>
+          <button data-v="landscape">Landscape</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Duplex flip (how the printer turns the page)</label>
+        <div class="seg" id="flipSeg">
+          <button data-v="long" class="active">Long edge</button>
+          <button data-v="short">Short edge</button>
+        </div>
+        <div class="hint" id="flipHint"></div>
+      </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
+          <input type="checkbox" id="transparentBg" style="width:14px;height:14px;">
+          Transparent page background
+        </label>
+        <div class="hint">Off-white becomes fully transparent — useful for printing on colored stock, labels or transfers where you don't want a filled box behind your content. Shown as a checkerboard here for reference only; nothing prints there.</div>
+      </div>
+
+      <div class="section-label">Alignment</div>
+      <div class="hint">The faint "ghost" on the canvas shows the <b>other side</b>, mirrored the way it will actually land when the sheet is flipped over — use it to line up marks between front and back. Set the flip edge above to match your printer's duplex setting.</div>
+    </aside>
+
+    <main class="stage-wrap">
+      <div id="stageOuter">
+        <div class="page" id="page">
+          <div class="ghostLayer" id="ghostLayer"></div>
+          <div class="elLayer" id="elLayer"></div>
+          <div id="selBoxHost"></div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="rail right" id="propsPanel">
+      <div class="empty-state">Select an element to edit its position, size and style — or add something new from the left panel.</div>
+    </aside>
+  </div>
+  <div class="rail-scrim" id="railScrim"></div>
+</div>
+<div id="printRoot"></div>
+<style id="pageSizeStyle"></style>
+</body>
+</html>
