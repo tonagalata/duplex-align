@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duplex Align</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFAF7;
+  --paper-edge:#E7E4DC;
+  --ink:#1C2430;
+  --ink-soft:#4A5262;
+  --line:#DCD9D0;
+  --line-strong:#C7C3B8;
+  --panel:#F2F0EA;
+  --panel-raised:#FFFFFF;
+  --accent:#C4453D;
+  --accent-soft:#F4DAD8;
+  --accent2:#2B6CB0;
+  --ok:#3E8F6B;
+  --grey:#8A9099;
+  --emphasis:#1C2430;
+  --on-emphasis:#FAFAF7;
+  --shadow:0 1px 2px rgba(28,36,48,0.06), 0 8px 24px rgba(28,36,48,0.08);
+  --radius:6px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#EDEBE4;
+    --paper-edge:#D8D5CB;
+    --ink:#F0EEE8;
+    --ink-soft:#B9BFC9;
+    --line:#3A4150;
+    --line-strong:#4C5566;
+    --panel:#20262F;
+    --panel-raised:#262D38;
+    --accent:#E2726B;
+    --accent-soft:#4A2C2A;
+    --accent2:#6FA8DC;
+    --ok:#63B392;
+    --grey:#8A9099;
+    --shadow:0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#EDEBE4;
+  --paper-edge:#D8D5CB;
+  --ink:#F0EEE8;
+  --ink-soft:#B9BFC9;
+  --line:#3A4150;
+  --line-strong:#4C5566;
+  --panel:#20262F;
+  --panel-raised:#262D38;
+  --accent:#E2726B;
+  --accent-soft:#4A2C2A;
+  --accent2:#6FA8DC;
+  --ok:#63B392;
+  --grey:#8A9099;
+  --shadow:0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:"IBM Plex Sans", system-ui, sans-serif;
+  background:var(--panel);
+  color:var(--ink);
+  overflow:hidden;
+}
+.mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
+button, input, select, textarea{ font-family:inherit; color:inherit; }
+button{ cursor:pointer; }
+
+.app{ height:100vh; display:flex; flex-direction:column; }
+
+/* ---------- topbar ---------- */
+.topbar{
+  display:flex; align-items:center; gap:14px;
+  padding:8px 14px;
+  background:var(--panel-raised);
+  border-bottom:1px solid var(--line);
+  flex-wrap:wrap;
+  min-height:52px;
+}
+.brand{ display:flex; align-items:center; gap:8px; font-weight:600; letter-spacing:0.01em; margin-right:6px; }
+.brand .mark{ width:20px; height:26px; border:2px solid var(--accent); border-radius:2px; position:relative; flex:none; }
+.brand .mark::after{ content:""; position:absolute; inset:4px 4px auto 4px; height:2px; background:var(--accent); opacity:0.55; box-shadow:0 5px 0 var(--accent), 0 10px 0 var(--accent); }
+.title-input{
+  border:1px solid transparent; background:transparent; font-size:13px; font-weight:600;
+  padding:4px 6px; border-radius:4px; max-width:220px;
+}
+.title-input:hover, .title-input:focus{ border-color:var(--line); background:var(--panel); outline:none; }
+
+.side-tabs{ display:flex; background:var(--panel); border-radius:999px; padding:3px; gap:2px; }
+.side-tabs button{
+  border:none; background:transparent; padding:6px 16px; border-radius:999px; font-size:13px; font-weight:600;
+  color:var(--ink-soft);
+}
+.side-tabs button.active{ background:var(--emphasis); color:var(--on-emphasis); }
+
+.spacer{ flex:1; }
+
+.tbtn{
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--line); background:var(--panel-raised); color:var(--ink);
+  padding:6px 11px; border-radius:6px; font-size:12.5px; font-weight:500;
+}
+.tbtn:hover{ border-color:var(--line-strong); }
+.tbtn.primary{ background:var(--emphasis); color:var(--on-emphasis); border-color:var(--emphasis); }
+.tbtn.primary:hover{ opacity:0.9; }
+.tbtn.accent{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.tbtn.toggle.on{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
+.tbtn:disabled{ opacity:0.4; cursor:not-allowed; }
+.zoomgroup{ display:flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:6px; padding:2px; background:var(--panel-raised); }
+.zoomgroup button{ border:none; background:transparent; width:24px; height:24px; border-radius:4px; font-size:14px; }
+.zoomgroup button:hover{ background:var(--panel); }
+.zoomval{ font-size:11px; width:40px; text-align:center; color:var(--ink-soft); }
+
+input[type=file]{ display:none; }
+
+/* ---------- sheet bar ---------- */
+.sheetbar{
+  display:flex; align-items:center; gap:10px;
+  padding:7px 14px;
+  background:var(--panel-raised);
+  border-bottom:1px solid var(--line);
+  overflow-x:auto;
+}
+.sheet-strip{ display:flex; align-items:center; gap:6px; flex:none; }
+.sheet-tab{
+  display:flex; align-items:center; gap:6px;
+  border:1px solid var(--line); background:var(--panel); color:var(--ink-soft);
+  padding:5px 10px; border-radius:6px; font-size:12px; font-weight:500; flex:none;
+}
+.sheet-tab:hover{ border-color:var(--line-strong); }
+.sheet-tab.active{ background:var(--emphasis); color:var(--on-emphasis); border-color:var(--emphasis); }
+.sheet-tab .count{ font-size:10px; opacity:0.75; }
+
+/* ---------- body layout ---------- */
+.body{ flex:1; display:flex; min-height:0; }
+
+.rail{
+  width:236px; flex:none; background:var(--panel-raised); border-right:1px solid var(--line);
+  overflow-y:auto; padding:14px 12px;
+}
+.rail.right{ border-right:none; border-left:1px solid var(--line); }
+
+.section-label{
+  font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--grey);
+  margin:16px 0 8px; display:flex; align-items:center; justify-content:space-between;
+}
+.section-label:first-child{ margin-top:2px; }
+
+.add-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.add-btn{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:12px 6px;
+  font-size:11.5px; font-weight:500; color:var(--ink);
+}
+.add-btn:hover{ border-color:var(--accent2); background:var(--panel-raised); }
+.add-btn svg{ width:20px; height:20px; stroke:var(--ink-soft); fill:none; stroke-width:1.6; }
+
+.field{ margin-bottom:10px; }
+.field label{ display:block; font-size:11px; color:var(--ink-soft); margin-bottom:4px; }
+.field select, .field input[type=text], .field input[type=number]{
+  width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:5px; background:var(--panel-raised); font-size:12.5px;
+}
+.row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.seg{ display:flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+.seg button{ flex:1; border:none; background:var(--panel-raised); padding:7px 4px; font-size:11.5px; color:var(--ink-soft); border-right:1px solid var(--line); }
+.seg button:last-child{ border-right:none; }
+.seg button.active{ background:var(--emphasis); color:var(--on-emphasis); }
+.hint{ font-size:11px; color:var(--grey); line-height:1.5; margin-top:6px; }
+
+/* ---------- stage ---------- */
+.stage-wrap{
+  flex:1; overflow:auto; display:flex; align-items:flex-start; justify-content:center;
+  padding:48px 24px; background:
+    radial-gradient(circle, var(--line) 1px, transparent 1px) 0 0/22px 22px;
+}
+#stageOuter{ flex:none; }
+.page{
+  position:relative; background:var(--paper); box-shadow:var(--shadow);
+  border:1px solid var(--paper-edge);
+}
+.page.transparent{
+  background-color:transparent;
+  background-image:
+    linear-gradient(45deg, var(--line) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--line) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--line) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--line) 75%);
+  background-size:16px 16px;
+  background-position:0 0, 0 8px, 8px -8px, -8px 0px;
+  opacity:1;
+}
+.page.transparent::before{
+  content:"";
+  position:absolute; inset:0; background:var(--paper); opacity:0.18; pointer-events:none;
+}
+.page .center-guide{ position:absolute; background:var(--accent2); opacity:0.35; pointer-events:none; }
+.page .center-guide.v{ top:0; bottom:0; width:1px; left:50%; }
+.page .center-guide.h{ left:0; right:0; height:1px; top:50%; }
+.page .margin-guide{ position:absolute; border:1px dashed var(--line-strong); opacity:0.7; pointer-events:none; }
+
+.elLayer, .ghostLayer{ position:absolute; inset:0; }
+.ghostLayer{ pointer-events:none; opacity:0.32; filter:grayscale(0.15); }
+
+.el{
+  position:absolute; cursor:grab; user-select:none;
+}
+.el:active{ cursor:grabbing; }
+.el.text{ display:flex; overflow:hidden; white-space:pre-wrap; word-break:break-word; }
+.el.image img{ width:100%; height:100%; display:block; pointer-events:none; }
+.el.rect{ }
+.el.ellipse{ border-radius:50%; }
+
+.selbox{ position:absolute; border:1.5px solid var(--accent2); pointer-events:none; }
+.selbox .handle{
+  position:absolute; width:9px; height:9px; background:#fff; border:1.5px solid var(--accent2); border-radius:2px;
+  transform:translate(-50%,-50%); pointer-events:auto;
+}
+.selbox .handle.rot{ border-radius:50%; top:-24px; }
+.selbox .rotline{ position:absolute; left:50%; top:-24px; width:1px; height:24px; background:var(--accent2); opacity:0.7; }
+
+/* ---------- right props panel ---------- */
+.empty-state{ color:var(--grey); font-size:12px; text-align:center; padding:30px 8px; line-height:1.6; }
+.prop-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+.prop-type{ font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:700; }
+.icon-btn{ border:none; background:transparent; color:var(--grey); padding:4px; border-radius:4px; display:flex; }
+.icon-btn:hover{ background:var(--panel); color:var(--accent); }
+.icon-btn svg{ width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.7; }
+textarea.tcontent{ width:100%; min-height:64px; padding:7px 8px; border:1px solid var(--line); border-radius:5px; background:var(--panel-raised); font-size:12.5px; resize:vertical; }
+input[type=color]{ width:36px; height:28px; border:1px solid var(--line); border-radius:5px; padding:2px; background:var(--panel-raised); }
+input[type=range]{ width:100%; }
+.colorrow{ display:flex; align-items:center; gap:8px; }
+.smallnote{ font-size:10.5px; color:var(--grey); }
+.layerbtns{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.layerbtns button{ border:1px solid var(--line); background:var(--panel-raised); border-radius:5px; padding:6px; font-size:11px; }
+.layerbtns button:hover{ border-color:var(--line-strong); }
+.dangerbtn{ width:100%; border:1px solid var(--line); background:var(--panel-raised); color:var(--accent); border-radius:5px; padding:7px; font-size:12px; font-weight:500; margin-top:4px; }
+.dangerbtn:hover{ background:var(--accent-soft); border-color:var(--accent); }
+.alignbtns{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+.alignbtns button{ border:1px solid var(--line); background:var(--panel-raised); border-radius:5px; padding:7px 2px; font-size:10.5px; }
+.alignbtns button:hover{ border-color:var(--accent2); color:var(--accent2); }
+
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-thumb{ background:var(--line-strong); border-radius:6px; }
+::-webkit-scrollbar-track{ background:transparent; }
+
+/* ---------- print ---------- */
+#printRoot{ display:none; }
+@media print{
+  body > *:not(#printRoot){ display:none !important; }
+  #printRoot{ display:block !important; }
+  #printRoot *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact; }
+  .pp{ position:relative; background:#fff; page-break-after:always; }
+  .pp:last-child{ page-break-after:auto; }
+  .pel{ position:absolute; }
+  .pel.text{ display:flex; white-space:pre-wrap; word-break:break-word; overflow:hidden; }
+  .pel.image img{ width:100%; height:100%; display:block; }
+  .pel.ellipse{ border-radius:50%; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Duplex Align</div>
+    <input class="title-input mono" id="titleInput" value="Untitled Project" spellcheck="false">
+
+    <div class="side-tabs">
+      <button id="tabFront" class="active">Front</button>
+      <button id="tabBack">Back</button>
+    </div>
+
+    <div class="zoomgroup">
+      <button id="zoomOut" title="Zoom out">–</button>
+      <span class="zoomval mono" id="zoomVal">100%</span>
+      <button id="zoomIn" title="Zoom in">+</button>
+      <button id="zoomFit" title="Fit to window" style="width:auto;padding:0 6px;font-size:10.5px;">Fit</button>
+    </div>
+
+    <button class="tbtn toggle on" id="toggleGuides">Guides</button>
+    <button class="tbtn toggle on" id="toggleGhost">Ghost: other side</button>
+
+    <div class="spacer"></div>
+
+    <button class="tbtn" id="newProjectBtn">New</button>
+    <button class="tbtn" id="loadBtn">Open…</button>
+    <input type="file" id="loadFile" accept="application/json,.json">
+    <button class="tbtn primary" id="saveBtn">Save Project</button>
+    <button class="tbtn accent" id="printBtn">Print Both Sides</button>
+  </header>
+
+  <div class="sheetbar">
+    <span class="section-label" style="margin:0;">Sheets</span>
+    <div class="sheet-strip" id="sheetStrip"></div>
+    <button class="tbtn" id="addSheetBtn">+ Add sheet</button>
+    <button class="tbtn" id="dupSheetBtn">Duplicate</button>
+    <button class="tbtn" id="delSheetBtn">Delete</button>
+    <div class="hint" style="margin:0 0 0 4px;">Each sheet prints as its own front + back, in order — matching a printer's duplex feed.</div>
+  </div>
+
+  <div class="body">
+    <aside class="rail left">
+      <div class="section-label">Add to canvas</div>
+      <div class="add-grid">
+        <button class="add-btn" id="addText">
+          <svg viewBox="0 0 24 24"><path d="M4 6h16M12 6v13M9 19h6"/></svg>
+          Text
+        </button>
+        <button class="add-btn" id="addImageBtn">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-5 5"/></svg>
+          Image
+          <input type="file" id="addImageFile" accept="image/*">
+        </button>
+        <button class="add-btn" id="addRect">
+          <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1"/></svg>
+          Rectangle
+        </button>
+        <button class="add-btn" id="addEllipse">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="6.5"/></svg>
+          Ellipse
+        </button>
+      </div>
+
+      <div class="section-label">Paper</div>
+      <div class="field">
+        <label>Size</label>
+        <select id="paperSize">
+          <option value="letter">Letter — 8.5 × 11 in</option>
+          <option value="a4">A4 — 210 × 297 mm</option>
+          <option value="legal">Legal — 8.5 × 14 in</option>
+          <option value="a5">A5 — 148 × 210 mm</option>
+          <option value="tabloid">Tabloid — 11 × 17 in</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Orientation</label>
+        <div class="seg" id="orientSeg">
+          <button data-v="portrait" class="active">Portrait</button>
+          <button data-v="landscape">Landscape</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Duplex flip (how the printer turns the page)</label>
+        <div class="seg" id="flipSeg">
+          <button data-v="long" class="active">Long edge</button>
+          <button data-v="short">Short edge</button>
+        </div>
+        <div class="hint" id="flipHint"></div>
+      </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
+          <input type="checkbox" id="transparentBg" style="width:14px;height:14px;">
+          Transparent page background
+        </label>
+        <div class="hint">Off-white becomes fully transparent — useful for printing on colored stock, labels or transfers where you don't want a filled box behind your content. Shown as a checkerboard here for reference only; nothing prints there.</div>
+      </div>
+
+      <div class="section-label">Alignment</div>
+      <div class="hint">The faint "ghost" on the canvas shows the <b>other side</b>, mirrored the way it will actually land when the sheet is flipped over — use it to line up marks between front and back. Set the flip edge above to match your printer's duplex setting.</div>
+    </aside>
+
+    <main class="stage-wrap">
+      <div id="stageOuter">
+        <div class="page" id="page">
+          <div class="ghostLayer" id="ghostLayer"></div>
+          <div class="elLayer" id="elLayer"></div>
+          <div id="selBoxHost"></div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="rail right" id="propsPanel">
+      <div class="empty-state">Select an element to edit its position, size and style — or add something new from the left panel.</div>
+    </aside>
+  </div>
+</div>
+<div id="printRoot"></div>
+<style id="pageSizeStyle"></style>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== constants & state ===================== */
+const PPI = 96; // editing baseline px-per-inch
+const PAPER = {
+  letter:{w:8.5,h:11},
+  a4:{w:8.2677,h:11.6929},
+  legal:{w:8.5,h:14},
+  a5:{w:5.8268,h:8.2677},
+  tabloid:{w:11,h:17},
+};
+const MIN_SIZE = 0.15; // inches
+
+const STORAGE_KEY = "duplexAlign.autosave.v1";
+
+function newSheet(){ return { front:[], back:[] }; }
+
+let state = {
+  meta:{ title:"Untitled Project" },
+  paper:{ size:"letter", orientation:"portrait", flip:"long", transparent:false },
+  sheets:[ newSheet() ],
+};
+let ui = { sheetIndex:0, side:"front", selectedId:null, zoom:1, showGuides:true, showGhost:true };
+
+function uid(){ return "el_" + Math.random().toString(36).slice(2,10); }
+
+// migrates an older single-sheet (state.sides) save into the sheets[] model
+function migrateState(data){
+  if(!data.sheets){
+    if(data.sides){ data.sheets = [{ front:data.sides.front||[], back:data.sides.back||[] }]; delete data.sides; }
+    else data.sheets = [ newSheet() ];
+  }
+  if(!data.sheets.length) data.sheets = [ newSheet() ];
+  return data;
+}
+
+function currentSheet(){ return state.sheets[Math.min(ui.sheetIndex, state.sheets.length-1)]; }
+
+function paperDims(){
+  let p = PAPER[state.paper.size];
+  let w = p.w, h = p.h;
+  if(state.paper.orientation === "landscape"){ [w,h]=[h,w]; }
+  return {w,h};
+}
+
+function newElement(type){
+  const {w:pw,h:ph} = paperDims();
+  const base = {
+    id: uid(), type,
+    x: +(pw/2 - 1).toFixed(3), y:+(ph/2 - 0.5).toFixed(3),
+    w: 2, h: 1, rot:0, opacity:1, flipH:false, flipV:false,
+  };
+  if(type==="text"){
+    Object.assign(base, { w:2.5, h:0.6,
+      text:{ content:"Text", size:18, color:"#000000", font:"IBM Plex Sans, sans-serif", align:"left", bold:false, italic:false }
+    });
+  } else if(type==="rect"){
+    Object.assign(base, { shape:{ fill:"#C4453D", stroke:"#1C2430", strokeWidth:0 } });
+  } else if(type==="ellipse"){
+    Object.assign(base, { w:1.6,h:1.6, shape:{ fill:"#2B6CB0", stroke:"#1C2430", strokeWidth:0 } });
+  } else if(type==="image"){
+    Object.assign(base, { w:2.5,h:2.5, image:{ src:"", fit:"contain" } });
+  }
+  return base;
+}
+
+function currentList(){ return currentSheet()[ui.side]; }
+function otherSide(){ return ui.side==="front" ? "back" : "front"; }
+function getEl(id){ return currentList().find(e=>e.id===id); }
+
+/* ===================== geometry helpers ===================== */
+function rotVec(v, deg){
+  const r = deg*Math.PI/180, c=Math.cos(r), s=Math.sin(r);
+  return { x: v.x*c - v.y*s, y: v.x*s + v.y*c };
+}
+function center(el){ return { x: el.x + el.w/2, y: el.y + el.h/2 }; }
+
+/* ===================== DOM refs ===================== */
+const pageEl = document.getElementById("page");
+const elLayer = document.getElementById("elLayer");
+const ghostLayer = document.getElementById("ghostLayer");
+const selBoxHost = document.getElementById("selBoxHost");
+const stageOuter = document.getElementById("stageOuter");
+const propsPanel = document.getElementById("propsPanel");
+const pageSizeStyle = document.getElementById("pageSizeStyle");
+
+/* ===================== render: page + elements ===================== */
+function px(inches){ return inches*PPI*ui.zoom; }
+
+function renderPage(){
+  const {w,h} = paperDims();
+  const wpx = w*PPI*ui.zoom, hpx = h*PPI*ui.zoom;
+  pageEl.style.width = wpx+"px";
+  pageEl.style.height = hpx+"px";
+  stageOuter.style.width = wpx+"px";
+  pageEl.classList.toggle("transparent", !!state.paper.transparent);
+
+  // guides
+  Array.from(pageEl.querySelectorAll(".center-guide,.margin-guide")).forEach(n=>n.remove());
+  if(ui.showGuides){
+    const vg = document.createElement("div"); vg.className="center-guide v"; pageEl.appendChild(vg);
+    const hg = document.createElement("div"); hg.className="center-guide h"; pageEl.appendChild(hg);
+    const margin = 0.25;
+    const mg = document.createElement("div");
+    mg.className="margin-guide";
+    mg.style.left = px(margin)+"px"; mg.style.top = px(margin)+"px";
+    mg.style.width = px(w-margin*2)+"px"; mg.style.height = px(h-margin*2)+"px";
+    pageEl.appendChild(mg);
+  }
+
+  renderElements();
+  renderGhost();
+  renderSelection();
+  updateZoomLabel();
+  updatePageSizeCSS();
+}
+
+function elTransform(el, extraFlipH, extraFlipV){
+  const sx = (el.flipH?-1:1) * (extraFlipH?-1:1);
+  const sy = (el.flipV?-1:1) * (extraFlipV?-1:1);
+  return `rotate(${el.rot}deg) scale(${sx}, ${sy})`;
+}
+
+function styleCommon(node, el){
+  node.style.left = px(el.x)+"px";
+  node.style.top = px(el.y)+"px";
+  node.style.width = px(el.w)+"px";
+  node.style.height = px(el.h)+"px";
+  node.style.transform = elTransform(el, false, false);
+  node.style.opacity = el.opacity;
+}
+
+function buildElNode(el, interactive){
+  const node = document.createElement("div");
+  node.className = "el " + el.type;
+  node.dataset.id = el.id;
+  styleCommon(node, el);
+  if(el.type==="text"){
+    node.style.fontSize = (el.text.size*ui.zoom)+"px";
+    node.style.color = el.text.color || "#000000";
+    node.style.fontFamily = el.text.font;
+    node.style.fontWeight = el.text.bold ? "700":"400";
+    node.style.fontStyle = el.text.italic ? "italic":"normal";
+    node.style.justifyContent = el.text.align==="center"?"center":el.text.align==="right"?"flex-end":"flex-start";
+    node.style.textAlign = el.text.align;
+    node.style.lineHeight = "1.25";
+    node.textContent = el.text.content;
+  } else if(el.type==="image"){
+    const img = document.createElement("img");
+    img.src = el.image.src || "";
+    img.style.objectFit = el.image.fit;
+    node.appendChild(img);
+  } else if(el.type==="rect" || el.type==="ellipse"){
+    node.style.background = el.shape.fill;
+    node.style.border = el.shape.strokeWidth>0 ? `${el.shape.strokeWidth*ui.zoom}px solid ${el.shape.stroke}` : "none";
+  }
+  if(interactive){
+    node.addEventListener("pointerdown", onElPointerDown);
+  }
+  return node;
+}
+
+function renderElements(){
+  elLayer.innerHTML = "";
+  currentList().forEach(el=>{
+    elLayer.appendChild(buildElNode(el, true));
+  });
+}
+
+function renderGhost(){
+  ghostLayer.innerHTML = "";
+  if(!ui.showGhost) return;
+  const {w:pw,h:ph} = paperDims();
+  const axis = state.paper.flip; // "long" -> mirror horizontal, "short" -> mirror vertical
+  currentSheet()[otherSide()].forEach(src=>{
+    const g = { ...src };
+    if(axis==="long"){ g.x = pw - src.x - src.w; g.rot = -src.rot; }
+    else { g.y = ph - src.y - src.h; g.rot = -src.rot; }
+    const node = buildElNode(g, false);
+    node.style.transform = elTransform(g, axis==="long", axis==="short");
+    ghostLayer.appendChild(node);
+  });
+}
+
+function updatePageSizeCSS(){
+  const {w,h} = paperDims();
+  pageSizeStyle.textContent = `@page{ size:${w}in ${h}in; margin:0; }`;
+}
+
+function updateZoomLabel(){
+  document.getElementById("zoomVal").textContent = Math.round(ui.zoom*100)+"%";
+}
+
+/* ===================== selection box + handles ===================== */
+const HANDLES = [
+  {id:"nw",sx:-1,sy:-1,cur:"nwse-resize"},
+  {id:"n", sx:0, sy:-1,cur:"ns-resize"},
+  {id:"ne",sx:1, sy:-1,cur:"nesw-resize"},
+  {id:"e", sx:1, sy:0, cur:"ew-resize"},
+  {id:"se",sx:1, sy:1, cur:"nwse-resize"},
+  {id:"s", sx:0, sy:1, cur:"ns-resize"},
+  {id:"sw",sx:-1,sy:1, cur:"nesw-resize"},
+  {id:"w", sx:-1,sy:0, cur:"ew-resize"},
+];
+
+function renderSelection(){
+  selBoxHost.innerHTML = "";
+  const el = ui.selectedId ? getEl(ui.selectedId) : null;
+  if(!el) return;
+  const box = document.createElement("div");
+  box.className = "selbox";
+  box.style.left = px(el.x)+"px";
+  box.style.top = px(el.y)+"px";
+  box.style.width = px(el.w)+"px";
+  box.style.height = px(el.h)+"px";
+  box.style.transform = `rotate(${el.rot}deg)`;
+
+  const rotline = document.createElement("div"); rotline.className="rotline"; box.appendChild(rotline);
+  const rotHandle = document.createElement("div"); rotHandle.className="handle rot"; rotHandle.style.left="50%";
+  rotHandle.addEventListener("pointerdown", (e)=>onRotateStart(e, el));
+  box.appendChild(rotHandle);
+
+  HANDLES.forEach(h=>{
+    const node = document.createElement("div");
+    node.className = "handle";
+    node.style.left = ((h.sx+1)/2*100)+"%";
+    node.style.top = ((h.sy+1)/2*100)+"%";
+    node.style.cursor = h.cur;
+    node.addEventListener("pointerdown", (e)=>onResizeStart(e, el, h));
+    box.appendChild(node);
+  });
+
+  selBoxHost.appendChild(box);
+}
+
+/* ===================== drag / resize / rotate ===================== */
+function stagePoint(e){
+  const r = pageEl.getBoundingClientRect();
+  return { x:(e.clientX-r.left)/(PPI*ui.zoom), y:(e.clientY-r.top)/(PPI*ui.zoom) };
+}
+
+function onElPointerDown(e){
+  const id = e.currentTarget.dataset.id;
+  selectElement(id);
+  const el = getEl(id);
+  if(!el) return;
+  const start = stagePoint(e);
+  const ox = el.x, oy = el.y;
+  function move(ev){
+    const p = stagePoint(ev);
+    el.x = +(ox + (p.x-start.x)).toFixed(3);
+    el.y = +(oy + (p.y-start.y)).toFixed(3);
+    renderElements(); renderSelection(); refreshPropsValues();
+  }
+  function up(){
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+    autosave();
+  }
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+  e.stopPropagation();
+}
+
+function onResizeStart(e, el, h){
+  e.stopPropagation(); e.preventDefault();
+  const w0=el.w, h0=el.h, x0=el.x, y0=el.y, rot0=el.rot;
+  const c0 = { x:x0+w0/2, y:y0+h0/2 };
+  const anchorLocal = { x:-h.sx*w0/2, y:-h.sy*h0/2 };
+  const anchorPage = { x:c0.x + rotVec(anchorLocal, rot0).x, y:c0.y + rotVec(anchorLocal, rot0).y };
+
+  function move(ev){
+    const p = stagePoint(ev);
+    const vecPage = { x:p.x-anchorPage.x, y:p.y-anchorPage.y };
+    const vecLocal = rotVec(vecPage, -rot0);
+    let newW = h.sx!==0 ? Math.max(MIN_SIZE, h.sx*vecLocal.x) : w0;
+    let newH = h.sy!==0 ? Math.max(MIN_SIZE, h.sy*vecLocal.y) : h0;
+    const newCenterLocal = { x: h.sx*newW/2, y: h.sy*newH/2 };
+    const newCenterPage = { x:anchorPage.x + rotVec(newCenterLocal, rot0).x, y:anchorPage.y + rotVec(newCenterLocal, rot0).y };
+    el.w = +newW.toFixed(3); el.h = +newH.toFixed(3);
+    el.x = +(newCenterPage.x - newW/2).toFixed(3);
+    el.y = +(newCenterPage.y - newH/2).toFixed(3);
+    renderElements(); renderSelection(); refreshPropsValues();
+  }
+  function up(){
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+    autosave();
+  }
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+}
+
+function onRotateStart(e, el){
+  e.stopPropagation(); e.preventDefault();
+  const c = center(el);
+  function angleTo(ev){
+    const p = stagePoint(ev);
+    return Math.atan2(p.y-c.y, p.x-c.x)*180/Math.PI + 90;
+  }
+  const startAngle = angleTo(e);
+  const rot0 = el.rot;
+  function move(ev){
+    const a = angleTo(ev);
+    el.rot = Math.round((rot0 + (a-startAngle)));
+    renderElements(); renderSelection(); refreshPropsValues();
+  }
+  function up(){
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+    autosave();
+  }
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+}
+
+pageEl.addEventListener("pointerdown", (e)=>{
+  if(e.target === pageEl || e.target === elLayer){ selectElement(null); }
+});
+
+/* ===================== selection & properties panel ===================== */
+function selectElement(id){
+  ui.selectedId = id;
+  renderSelection();
+  renderProps();
+}
+
+function bringLayer(dir){
+  const el = getEl(ui.selectedId); if(!el) return;
+  const list = currentList();
+  const i = list.indexOf(el);
+  list.splice(i,1);
+  if(dir==="front") list.push(el);
+  else if(dir==="back") list.unshift(el);
+  else if(dir==="up") list.splice(Math.min(list.length,i+1),0,el);
+  else if(dir==="down") list.splice(Math.max(0,i-1),0,el);
+  renderElements(); renderSelection(); autosave();
+}
+
+function deleteSelected(){
+  const el = getEl(ui.selectedId); if(!el) return;
+  const list = currentList();
+  list.splice(list.indexOf(el),1);
+  ui.selectedId = null;
+  renderElements(); renderSelection(); renderGhost(); renderProps(); autosave();
+}
+
+function duplicateSelected(){
+  const el = getEl(ui.selectedId); if(!el) return;
+  const copy = JSON.parse(JSON.stringify(el));
+  copy.id = uid(); copy.x = +(el.x+0.15).toFixed(3); copy.y = +(el.y+0.15).toFixed(3);
+  currentList().push(copy);
+  selectElement(copy.id);
+  renderElements(); renderGhost(); autosave();
+}
+
+function mirrorToOtherSide(){
+  const el = getEl(ui.selectedId); if(!el) return;
+  const {w:pw,h:ph} = paperDims();
+  const axis = state.paper.flip;
+  const copy = JSON.parse(JSON.stringify(el));
+  copy.id = uid();
+  if(axis==="long"){ copy.x = +(pw - el.x - el.w).toFixed(3); copy.rot = -el.rot; }
+  else { copy.y = +(ph - el.y - el.h).toFixed(3); copy.rot = -el.rot; }
+
+  function afterFlip(src){
+    currentSheet()[otherSide()].push(src);
+    autosave();
+  }
+  if(el.type==="image" && el.image.src){
+    // pixels are baked into the flipped image, so leave flipH/flipV as-is
+    flipImageDataURL(el.image.src, axis, (flipped)=>{
+      copy.image = { ...el.image, src:flipped };
+      afterFlip(copy);
+    });
+  } else {
+    if(axis==="long") copy.flipH = !el.flipH;
+    else copy.flipV = !el.flipV;
+    afterFlip(copy);
+  }
+}
+
+function flipImageDataURL(src, axis, cb){
+  const img = new Image();
+  img.onload = function(){
+    const c = document.createElement("canvas");
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const ctx = c.getContext("2d");
+    if(axis==="long"){ ctx.translate(c.width,0); ctx.scale(-1,1); }
+    else { ctx.translate(0,c.height); ctx.scale(1,-1); }
+    ctx.drawImage(img,0,0);
+    cb(c.toDataURL("image/png"));
+  };
+  img.onerror = function(){ cb(src); };
+  img.src = src;
+}
+
+function alignEl(mode){
+  const el = getEl(ui.selectedId); if(!el) return;
+  const {w:pw,h:ph} = paperDims();
+  if(mode==="h") el.x = +((pw-el.w)/2).toFixed(3);
+  if(mode==="v") el.y = +((ph-el.h)/2).toFixed(3);
+  if(mode==="both"){ el.x=+((pw-el.w)/2).toFixed(3); el.y=+((ph-el.h)/2).toFixed(3); }
+  renderElements(); renderSelection(); refreshPropsValues(); autosave();
+}
+
+function svgIcon(paths){ return `<svg viewBox="0 0 24 24">${paths}</svg>`; }
+
+function renderProps(){
+  const el = getEl(ui.selectedId);
+  if(!el){ propsPanel.innerHTML = `<div class="empty-state">Select an element to edit its position, size and style — or add something new from the left panel.</div>`; return; }
+
+  let typeSpecific = "";
+  if(el.type==="text"){
+    typeSpecific = `
+      <div class="section-label">Text</div>
+      <div class="field"><textarea class="tcontent" id="p_content">${escapeHtml(el.text.content)}</textarea></div>
+      <div class="row2">
+        <div class="field"><label>Size (pt)</label><input type="number" id="p_fsize" value="${el.text.size}" min="4" step="1"></div>
+        <div class="field"><label>Color</label><div class="colorrow"><input type="color" id="p_fcolor" value="${el.text.color}"></div></div>
+      </div>
+      <div class="field"><label>Align</label>
+        <div class="seg" id="p_align">
+          <button data-v="left" class="${el.text.align==='left'?'active':''}">Left</button>
+          <button data-v="center" class="${el.text.align==='center'?'active':''}">Center</button>
+          <button data-v="right" class="${el.text.align==='right'?'active':''}">Right</button>
+        </div>
+      </div>
+      <div class="field"><label>Style</label>
+        <div class="seg">
+          <button id="p_bold" class="${el.text.bold?'active':''}">Bold</button>
+          <button id="p_italic" class="${el.text.italic?'active':''}">Italic</button>
+        </div>
+      </div>`;
+  } else if(el.type==="image"){
+    typeSpecific = `
+      <div class="section-label">Image</div>
+      <button class="tbtn" id="p_replace" style="width:100%;justify-content:center;">Replace image…</button>
+      <input type="file" id="p_replaceFile" accept="image/*" style="display:none;">
+      <div class="field" style="margin-top:10px;"><label>Fit</label>
+        <div class="seg" id="p_fit">
+          <button data-v="contain" class="${el.image.fit==='contain'?'active':''}">Contain</button>
+          <button data-v="cover" class="${el.image.fit==='cover'?'active':''}">Cover</button>
+          <button data-v="fill" class="${el.image.fit==='fill'?'active':''}">Fill</button>
+        </div>
+      </div>`;
+  } else if(el.type==="rect" || el.type==="ellipse"){
+    typeSpecific = `
+      <div class="section-label">Style</div>
+      <div class="row2">
+        <div class="field"><label>Fill</label><div class="colorrow"><input type="color" id="p_fill" value="${el.shape.fill}"></div></div>
+        <div class="field"><label>Stroke</label><div class="colorrow"><input type="color" id="p_stroke" value="${el.shape.stroke}"></div></div>
+      </div>
+      <div class="field"><label>Stroke width (in)</label><input type="number" id="p_strokew" value="${el.shape.strokeWidth}" min="0" step="0.01"></div>`;
+  }
+
+  propsPanel.innerHTML = `
+    <div class="prop-header">
+      <span class="prop-type">${el.type}</span>
+      <div style="display:flex;gap:2px;">
+        <button class="icon-btn" id="p_dup" title="Duplicate">${svgIcon('<rect x="8" y="8" width="12" height="12" rx="1.5"/><rect x="4" y="4" width="12" height="12" rx="1.5"/>')}</button>
+        <button class="icon-btn" id="p_del" title="Delete">${svgIcon('<path d="M5 7h14M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-8 0l1 13h8l1-13"/>')}</button>
+      </div>
+    </div>
+
+    <div class="section-label">Position &amp; size (in)</div>
+    <div class="row2">
+      <div class="field"><label>X</label><input type="number" id="p_x" value="${el.x}" step="0.01"></div>
+      <div class="field"><label>Y</label><input type="number" id="p_y" value="${el.y}" step="0.01"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>W</label><input type="number" id="p_w" value="${el.w}" step="0.01" min="${MIN_SIZE}"></div>
+      <div class="field"><label>H</label><input type="number" id="p_h" value="${el.h}" step="0.01" min="${MIN_SIZE}"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Rotation (°)</label><input type="number" id="p_rot" value="${el.rot}" step="1"></div>
+      <div class="field"><label>Opacity</label><input type="range" id="p_op" min="0" max="1" step="0.01" value="${el.opacity}"></div>
+    </div>
+
+    <div class="field"><label>Align on page</label>
+      <div class="alignbtns">
+        <button id="al_h">Center H</button>
+        <button id="al_v">Center V</button>
+        <button id="al_b">Center both</button>
+      </div>
+    </div>
+
+    <div class="field"><label>Flip</label>
+      <div class="seg">
+        <button id="p_fliph" class="${el.flipH?'active':''}">Flip horizontal</button>
+        <button id="p_flipv" class="${el.flipV?'active':''}">Flip vertical</button>
+      </div>
+    </div>
+
+    ${typeSpecific}
+
+    <div class="section-label">Layer</div>
+    <div class="layerbtns">
+      <button id="p_front">Bring to front</button>
+      <button id="p_back">Send to back</button>
+      <button id="p_up">Forward</button>
+      <button id="p_down">Backward</button>
+    </div>
+
+    <div class="section-label">Duplex</div>
+    <button class="dangerbtn" id="p_mirror">Copy to ${otherSide()} (mirrored)</button>
+    <div class="smallnote" style="margin-top:6px;">Places a mirrored copy on the ${otherSide()} at the exact flipped position, so it lines up when printed double-sided.</div>
+  `;
+
+  // wire events
+  const num = (id, apply)=>{ document.getElementById(id).addEventListener("input", e=>{ apply(parseFloat(e.target.value)||0); renderElements(); renderSelection(); renderGhost(); autosave(); }); };
+  num("p_x", v=>el.x=v); num("p_y", v=>el.y=v);
+  num("p_w", v=>el.w=Math.max(MIN_SIZE,v)); num("p_h", v=>el.h=Math.max(MIN_SIZE,v));
+  num("p_rot", v=>el.rot=v);
+  document.getElementById("p_op").addEventListener("input", e=>{ el.opacity=parseFloat(e.target.value); renderElements(); autosave(); });
+
+  document.getElementById("al_h").onclick = ()=>alignEl("h");
+  document.getElementById("al_v").onclick = ()=>alignEl("v");
+  document.getElementById("al_b").onclick = ()=>alignEl("both");
+
+  document.getElementById("p_fliph").onclick = ()=>{ el.flipH=!el.flipH; renderProps(); renderElements(); renderGhost(); autosave(); };
+  document.getElementById("p_flipv").onclick = ()=>{ el.flipV=!el.flipV; renderProps(); renderElements(); renderGhost(); autosave(); };
+
+  document.getElementById("p_dup").onclick = duplicateSelected;
+  document.getElementById("p_del").onclick = deleteSelected;
+  document.getElementById("p_front").onclick = ()=>bringLayer("front");
+  document.getElementById("p_back").onclick = ()=>bringLayer("back");
+  document.getElementById("p_up").onclick = ()=>bringLayer("up");
+  document.getElementById("p_down").onclick = ()=>bringLayer("down");
+  document.getElementById("p_mirror").onclick = mirrorToOtherSide;
+
+  if(el.type==="text"){
+    document.getElementById("p_content").addEventListener("input", e=>{ el.text.content=e.target.value; renderElements(); autosave(); });
+    document.getElementById("p_fsize").addEventListener("input", e=>{ el.text.size=parseFloat(e.target.value)||12; renderElements(); autosave(); });
+    document.getElementById("p_fcolor").addEventListener("input", e=>{ el.text.color=e.target.value; renderElements(); autosave(); });
+    document.getElementById("p_align").querySelectorAll("button").forEach(b=>b.onclick=()=>{ el.text.align=b.dataset.v; renderProps(); renderElements(); autosave(); });
+    document.getElementById("p_bold").onclick = ()=>{ el.text.bold=!el.text.bold; renderProps(); renderElements(); autosave(); };
+    document.getElementById("p_italic").onclick = ()=>{ el.text.italic=!el.text.italic; renderProps(); renderElements(); autosave(); };
+  } else if(el.type==="image"){
+    document.getElementById("p_replace").onclick = ()=>document.getElementById("p_replaceFile").click();
+    document.getElementById("p_replaceFile").addEventListener("change", e=>{
+      const f = e.target.files[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{ el.image.src=reader.result; renderElements(); renderGhost(); autosave(); };
+      reader.readAsDataURL(f);
+    });
+    document.getElementById("p_fit").querySelectorAll("button").forEach(b=>b.onclick=()=>{ el.image.fit=b.dataset.v; renderProps(); renderElements(); autosave(); });
+  } else if(el.type==="rect" || el.type==="ellipse"){
+    document.getElementById("p_fill").addEventListener("input", e=>{ el.shape.fill=e.target.value; renderElements(); autosave(); });
+    document.getElementById("p_stroke").addEventListener("input", e=>{ el.shape.stroke=e.target.value; renderElements(); autosave(); });
+    document.getElementById("p_strokew").addEventListener("input", e=>{ el.shape.strokeWidth=parseFloat(e.target.value)||0; renderElements(); autosave(); });
+  }
+}
+
+function refreshPropsValues(){
+  const el = getEl(ui.selectedId); if(!el) return;
+  ["p_x","p_y","p_w","p_h","p_rot"].forEach(id=>{
+    const node = document.getElementById(id);
+    if(!node) return;
+    const key = {p_x:"x",p_y:"y",p_w:"w",p_h:"h",p_rot:"rot"}[id];
+    if(document.activeElement !== node) node.value = el[key];
+  });
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ===================== keyboard ===================== */
+window.addEventListener("keydown", e=>{
+  if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
+  if((e.key==="Delete"||e.key==="Backspace") && ui.selectedId){ deleteSelected(); e.preventDefault(); }
+  if((e.key==="d"||e.key==="D") && (e.metaKey||e.ctrlKey) && ui.selectedId){ duplicateSelected(); e.preventDefault(); }
+  const el = getEl(ui.selectedId);
+  if(el && ["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){
+    const step = e.shiftKey ? 0.1 : 0.01;
+    if(e.key==="ArrowUp") el.y=+(el.y-step).toFixed(3);
+    if(e.key==="ArrowDown") el.y=+(el.y+step).toFixed(3);
+    if(e.key==="ArrowLeft") el.x=+(el.x-step).toFixed(3);
+    if(e.key==="ArrowRight") el.x=+(el.x+step).toFixed(3);
+    renderElements(); renderSelection(); refreshPropsValues(); autosave();
+    e.preventDefault();
+  }
+});
+
+/* ===================== top toolbar wiring ===================== */
+document.getElementById("tabFront").onclick = ()=>switchSide("front");
+document.getElementById("tabBack").onclick = ()=>switchSide("back");
+function switchSide(side){
+  ui.side = side; ui.selectedId = null;
+  document.getElementById("tabFront").classList.toggle("active", side==="front");
+  document.getElementById("tabBack").classList.toggle("active", side==="back");
+  renderPage(); renderProps();
+}
+
+/* ===================== sheets ===================== */
+function renderSheetBar(){
+  const strip = document.getElementById("sheetStrip");
+  strip.innerHTML = "";
+  state.sheets.forEach((sheet, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "sheet-tab" + (i===ui.sheetIndex ? " active":"");
+    const count = sheet.front.length + sheet.back.length;
+    btn.innerHTML = `Sheet ${i+1} <span class="count">${count ? "· "+count : ""}</span>`;
+    btn.onclick = ()=>switchSheet(i);
+    strip.appendChild(btn);
+  });
+  document.getElementById("delSheetBtn").disabled = state.sheets.length<=1;
+}
+
+function switchSheet(i){
+  ui.sheetIndex = Math.max(0, Math.min(state.sheets.length-1, i));
+  ui.selectedId = null;
+  renderSheetBar();
+  renderPage(); renderProps();
+}
+
+document.getElementById("addSheetBtn").onclick = ()=>{
+  state.sheets.push(newSheet());
+  switchSheet(state.sheets.length-1);
+  autosave();
+};
+document.getElementById("dupSheetBtn").onclick = ()=>{
+  const copy = JSON.parse(JSON.stringify(currentSheet()));
+  copy.front.forEach(el=>el.id=uid());
+  copy.back.forEach(el=>el.id=uid());
+  state.sheets.splice(ui.sheetIndex+1, 0, copy);
+  switchSheet(ui.sheetIndex+1);
+  autosave();
+};
+document.getElementById("delSheetBtn").onclick = ()=>{
+  if(state.sheets.length<=1) return;
+  if(!confirm(`Delete Sheet ${ui.sheetIndex+1}? This can't be undone.`)) return;
+  state.sheets.splice(ui.sheetIndex,1);
+  switchSheet(Math.min(ui.sheetIndex, state.sheets.length-1));
+  autosave();
+};
+
+document.getElementById("titleInput").addEventListener("input", e=>{ state.meta.title = e.target.value; autosave(); });
+
+document.getElementById("zoomIn").onclick = ()=>{ ui.zoom=Math.min(3, +(ui.zoom+0.1).toFixed(2)); renderPage(); };
+document.getElementById("zoomOut").onclick = ()=>{ ui.zoom=Math.max(0.2, +(ui.zoom-0.1).toFixed(2)); renderPage(); };
+document.getElementById("zoomFit").onclick = fitZoom;
+function fitZoom(){
+  const {w,h} = paperDims();
+  const wrap = document.querySelector(".stage-wrap");
+  const availW = wrap.clientWidth - 60, availH = wrap.clientHeight - 40;
+  ui.zoom = Math.max(0.2, Math.min(2.5, Math.min(availW/(w*PPI), availH/(h*PPI))));
+  renderPage();
+}
+
+document.getElementById("toggleGuides").onclick = (e)=>{ ui.showGuides=!ui.showGuides; e.target.classList.toggle("on", ui.showGuides); renderPage(); };
+document.getElementById("toggleGhost").onclick = (e)=>{ ui.showGhost=!ui.showGhost; e.target.classList.toggle("on", ui.showGhost); renderGhost(); };
+
+document.getElementById("addText").onclick = ()=>addElement("text");
+document.getElementById("addRect").onclick = ()=>addElement("rect");
+document.getElementById("addEllipse").onclick = ()=>addElement("ellipse");
+document.getElementById("addImageBtn").onclick = ()=>document.getElementById("addImageFile").click();
+document.getElementById("addImageFile").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const el = newElement("image");
+    el.image.src = reader.result;
+    // fit aspect roughly using natural size
+    const img = new Image();
+    img.onload = ()=>{
+      const maxW = 3;
+      const ratio = img.naturalHeight / img.naturalWidth;
+      el.w = maxW; el.h = +(maxW*ratio).toFixed(3);
+      const {w:pw,h:ph} = paperDims();
+      el.x = +((pw-el.w)/2).toFixed(3); el.y = +((ph-el.h)/2).toFixed(3);
+      currentList().push(el);
+      selectElement(el.id);
+      renderElements(); renderGhost(); autosave();
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(f);
+  e.target.value = "";
+});
+function addElement(type){
+  const el = newElement(type);
+  currentList().push(el);
+  selectElement(el.id);
+  renderElements(); renderGhost(); autosave();
+}
+
+document.getElementById("paperSize").addEventListener("change", e=>{ state.paper.size = e.target.value; renderPage(); autosave(); });
+document.getElementById("orientSeg").querySelectorAll("button").forEach(b=>{
+  b.onclick = ()=>{ state.paper.orientation=b.dataset.v; segActivate("orientSeg", b); renderPage(); autosave(); };
+});
+document.getElementById("flipSeg").querySelectorAll("button").forEach(b=>{
+  b.onclick = ()=>{ state.paper.flip=b.dataset.v; segActivate("flipSeg", b); updateFlipHint(); renderGhost(); autosave(); };
+});
+function segActivate(segId, btn){
+  document.getElementById(segId).querySelectorAll("button").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+}
+function updateFlipHint(){
+  document.getElementById("flipHint").textContent = state.paper.flip==="long"
+    ? "Mirrors left↔right. Matches most printers' default duplex setting for portrait pages."
+    : "Mirrors top↔bottom. Use if your printer flips on the short edge (common for landscape duplex).";
+}
+updateFlipHint();
+
+document.getElementById("transparentBg").addEventListener("change", e=>{
+  state.paper.transparent = e.target.checked;
+  renderPage(); autosave();
+});
+
+/* ===================== save / load ===================== */
+document.getElementById("saveBtn").onclick = saveProject;
+function saveProject(){
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const name = (state.meta.title||"project").trim().replace(/[^a-z0-9\-_ ]/gi,"").replace(/\s+/g,"-") || "project";
+  a.href = url; a.download = name + ".duplexalign.json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+}
+
+document.getElementById("loadBtn").onclick = ()=>document.getElementById("loadFile").click();
+document.getElementById("loadFile").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if((!data.sides && !data.sheets) || !data.paper) throw new Error("bad file");
+      state = migrateState(data);
+      ui.sheetIndex = 0; ui.selectedId = null;
+      document.getElementById("titleInput").value = state.meta.title || "Untitled Project";
+      document.getElementById("paperSize").value = state.paper.size;
+      segActivate("orientSeg", [...document.getElementById("orientSeg").children].find(b=>b.dataset.v===state.paper.orientation));
+      segActivate("flipSeg", [...document.getElementById("flipSeg").children].find(b=>b.dataset.v===state.paper.flip));
+      document.getElementById("transparentBg").checked = !!state.paper.transparent;
+      updateFlipHint();
+      renderSheetBar();
+      switchSide("front");
+      fitZoom();
+    } catch(err){
+      alert("Couldn't read that file — it doesn't look like a Duplex Align project.");
+    }
+  };
+  reader.readAsText(f);
+  e.target.value = "";
+});
+
+document.getElementById("newProjectBtn").onclick = ()=>{
+  if(!confirm("Start a new project? Unsaved changes on screen will be lost (autosave will also be cleared).")) return;
+  state = { meta:{title:"Untitled Project"}, paper:{size:"letter",orientation:"portrait",flip:"long",transparent:false}, sheets:[ newSheet() ] };
+  ui = { sheetIndex:0, side:"front", selectedId:null, zoom:1, showGuides:true, showGhost:true };
+  document.getElementById("titleInput").value = state.meta.title;
+  document.getElementById("paperSize").value = state.paper.size;
+  segActivate("orientSeg", document.getElementById("orientSeg").children[0]);
+  segActivate("flipSeg", document.getElementById("flipSeg").children[0]);
+  document.getElementById("transparentBg").checked = false;
+  updateFlipHint();
+  renderSheetBar();
+  switchSide("front");
+  fitZoom();
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+};
+
+let autosaveTimer = null;
+function autosave(){
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(()=>{
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }, 300);
+}
+
+function tryRestoreAutosave(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if((!data.sides && !data.sheets) || !data.paper) return false;
+    state = migrateState(data);
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ===================== print ===================== */
+document.getElementById("printBtn").onclick = doPrint;
+function doPrint(){
+  const root = document.getElementById("printRoot");
+  root.innerHTML = "";
+  const imgLoads = [];
+  state.sheets.forEach(sheet=>{
+  ["front","back"].forEach(side=>{
+    const {w,h} = paperDims();
+    const pp = document.createElement("div");
+    pp.className = "pp";
+    pp.style.width = w+"in"; pp.style.height = h+"in";
+    pp.style.background = state.paper.transparent ? "transparent" : "#fff";
+    sheet[side].forEach(el=>{
+      const node = document.createElement("div");
+      node.className = "pel " + el.type;
+      node.style.left = el.x+"in"; node.style.top = el.y+"in";
+      node.style.width = el.w+"in"; node.style.height = el.h+"in";
+      node.style.transform = elTransform(el, false, false);
+      node.style.opacity = el.opacity;
+      if(el.type==="text"){
+        node.style.fontSize = el.text.size+"pt";
+        node.style.color = el.text.color || "#000000";
+        node.style.fontFamily = el.text.font;
+        node.style.fontWeight = el.text.bold?"700":"400";
+        node.style.fontStyle = el.text.italic?"italic":"normal";
+        node.style.justifyContent = el.text.align==="center"?"center":el.text.align==="right"?"flex-end":"flex-start";
+        node.style.textAlign = el.text.align;
+        node.style.lineHeight = "1.25";
+        node.textContent = el.text.content;
+      } else if(el.type==="image"){
+        const img = document.createElement("img");
+        img.style.objectFit = el.image.fit;
+        if(el.image.src){
+          imgLoads.push(new Promise(resolve=>{
+            img.onload = ()=> (img.decode ? img.decode().catch(()=>{}) : Promise.resolve()).then(resolve);
+            img.onerror = resolve;
+          }));
+          img.src = el.image.src;
+        }
+        node.appendChild(img);
+      } else if(el.type==="rect" || el.type==="ellipse"){
+        node.style.background = el.shape.fill;
+        node.style.border = el.shape.strokeWidth>0 ? `${el.shape.strokeWidth}in solid ${el.shape.stroke}` : "none";
+      }
+      pp.appendChild(node);
+    });
+    root.appendChild(pp);
+  });
+  });
+  updatePageSizeCSS();
+  Promise.all(imgLoads).then(()=>{
+    // give layout a frame to settle after images resolve, then print
+    requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
+  });
+}
+window.addEventListener("afterprint", ()=>{ document.getElementById("printRoot").innerHTML = ""; });
+
+/* ===================== init ===================== */
+function init(){
+  const restored = tryRestoreAutosave();
+  document.getElementById("titleInput").value = state.meta.title || "Untitled Project";
+  document.getElementById("paperSize").value = state.paper.size;
+  segActivate("orientSeg", [...document.getElementById("orientSeg").children].find(b=>b.dataset.v===state.paper.orientation) || document.getElementById("orientSeg").children[0]);
+  segActivate("flipSeg", [...document.getElementById("flipSeg").children].find(b=>b.dataset.v===state.paper.flip) || document.getElementById("flipSeg").children[0]);
+  document.getElementById("transparentBg").checked = !!state.paper.transparent;
+  updateFlipHint();
+  ui.sheetIndex = Math.min(ui.sheetIndex, state.sheets.length-1);
+  renderSheetBar();
+
+  window.addEventListener("resize", ()=>{ /* keep current zoom on resize */ });
+  switchSide("front");
+  fitZoom();
+}
+init();
+
+})();
+</script>
+</body>
+</html>
