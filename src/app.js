@@ -1,394 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Duplex Align</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --paper:#FAFAF7;
-  --paper-edge:#E7E4DC;
-  --ink:#1C2430;
-  --ink-soft:#4A5262;
-  --line:#DCD9D0;
-  --line-strong:#C7C3B8;
-  --panel:#F2F0EA;
-  --panel-raised:#FFFFFF;
-  --accent:#C4453D;
-  --accent-soft:#F4DAD8;
-  --accent2:#2B6CB0;
-  --ok:#3E8F6B;
-  --grey:#8A9099;
-  --emphasis:#1C2430;
-  --on-emphasis:#FAFAF7;
-  --shadow:0 1px 2px rgba(28,36,48,0.06), 0 8px 24px rgba(28,36,48,0.08);
-  --radius:6px;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --paper:#EDEBE4;
-    --paper-edge:#D8D5CB;
-    --ink:#F0EEE8;
-    --ink-soft:#B9BFC9;
-    --line:#3A4150;
-    --line-strong:#4C5566;
-    --panel:#20262F;
-    --panel-raised:#262D38;
-    --accent:#E2726B;
-    --accent-soft:#4A2C2A;
-    --accent2:#6FA8DC;
-    --ok:#63B392;
-    --grey:#8A9099;
-    --shadow:0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"]{
-  --paper:#EDEBE4;
-  --paper-edge:#D8D5CB;
-  --ink:#F0EEE8;
-  --ink-soft:#B9BFC9;
-  --line:#3A4150;
-  --line-strong:#4C5566;
-  --panel:#20262F;
-  --panel-raised:#262D38;
-  --accent:#E2726B;
-  --accent-soft:#4A2C2A;
-  --accent2:#6FA8DC;
-  --ok:#63B392;
-  --grey:#8A9099;
-  --shadow:0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
-  color-scheme: dark;
-}
-*{box-sizing:border-box;}
-html,body{height:100%;}
-body{
-  margin:0;
-  font-family:"IBM Plex Sans", system-ui, sans-serif;
-  background:var(--panel);
-  color:var(--ink);
-  overflow:hidden;
-}
-.mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
-button, input, select, textarea{ font-family:inherit; color:inherit; }
-button{ cursor:pointer; }
+import "./app.css";
 
-.app{ height:100vh; display:flex; flex-direction:column; }
-
-/* ---------- topbar ---------- */
-.topbar{
-  display:flex; align-items:center; gap:14px;
-  padding:8px 14px;
-  background:var(--panel-raised);
-  border-bottom:1px solid var(--line);
-  flex-wrap:wrap;
-  min-height:52px;
-}
-.brand{ display:flex; align-items:center; gap:8px; font-weight:600; letter-spacing:0.01em; margin-right:6px; }
-.brand .mark{ width:20px; height:26px; border:2px solid var(--accent); border-radius:2px; position:relative; flex:none; }
-.brand .mark::after{ content:""; position:absolute; inset:4px 4px auto 4px; height:2px; background:var(--accent); opacity:0.55; box-shadow:0 5px 0 var(--accent), 0 10px 0 var(--accent); }
-.title-input{
-  border:1px solid transparent; background:transparent; font-size:13px; font-weight:600;
-  padding:4px 6px; border-radius:4px; max-width:220px;
-}
-.title-input:hover, .title-input:focus{ border-color:var(--line); background:var(--panel); outline:none; }
-
-.side-tabs{ display:flex; background:var(--panel); border-radius:999px; padding:3px; gap:2px; }
-.side-tabs button{
-  border:none; background:transparent; padding:6px 16px; border-radius:999px; font-size:13px; font-weight:600;
-  color:var(--ink-soft);
-}
-.side-tabs button.active{ background:var(--emphasis); color:var(--on-emphasis); }
-
-.spacer{ flex:1; }
-
-.tbtn{
-  display:inline-flex; align-items:center; gap:6px;
-  border:1px solid var(--line); background:var(--panel-raised); color:var(--ink);
-  padding:6px 11px; border-radius:6px; font-size:12.5px; font-weight:500;
-}
-.tbtn:hover{ border-color:var(--line-strong); }
-.tbtn.primary{ background:var(--emphasis); color:var(--on-emphasis); border-color:var(--emphasis); }
-.tbtn.primary:hover{ opacity:0.9; }
-.tbtn.accent{ background:var(--accent); border-color:var(--accent); color:#fff; }
-.tbtn.toggle.on{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
-.tbtn:disabled{ opacity:0.4; cursor:not-allowed; }
-.zoomgroup{ display:flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:6px; padding:2px; background:var(--panel-raised); }
-.zoomgroup button{ border:none; background:transparent; width:24px; height:24px; border-radius:4px; font-size:14px; }
-.zoomgroup button:hover{ background:var(--panel); }
-.zoomval{ font-size:11px; width:40px; text-align:center; color:var(--ink-soft); }
-
-input[type=file]{ display:none; }
-
-/* ---------- sheet bar ---------- */
-.sheetbar{
-  display:flex; align-items:center; gap:10px;
-  padding:7px 14px;
-  background:var(--panel-raised);
-  border-bottom:1px solid var(--line);
-  overflow-x:auto;
-}
-.sheet-strip{ display:flex; align-items:center; gap:6px; flex:none; }
-.sheet-tab{
-  display:flex; align-items:center; gap:6px;
-  border:1px solid var(--line); background:var(--panel); color:var(--ink-soft);
-  padding:5px 10px; border-radius:6px; font-size:12px; font-weight:500; flex:none;
-}
-.sheet-tab:hover{ border-color:var(--line-strong); }
-.sheet-tab.active{ background:var(--emphasis); color:var(--on-emphasis); border-color:var(--emphasis); }
-.sheet-tab .count{ font-size:10px; opacity:0.75; }
-
-/* ---------- body layout ---------- */
-.body{ flex:1; display:flex; min-height:0; }
-
-.rail{
-  width:236px; flex:none; background:var(--panel-raised); border-right:1px solid var(--line);
-  overflow-y:auto; padding:14px 12px;
-}
-.rail.right{ border-right:none; border-left:1px solid var(--line); }
-
-.section-label{
-  font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--grey);
-  margin:16px 0 8px; display:flex; align-items:center; justify-content:space-between;
-}
-.section-label:first-child{ margin-top:2px; }
-
-.add-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.add-btn{
-  display:flex; flex-direction:column; align-items:center; gap:6px;
-  border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:12px 6px;
-  font-size:11.5px; font-weight:500; color:var(--ink);
-}
-.add-btn:hover{ border-color:var(--accent2); background:var(--panel-raised); }
-.add-btn svg{ width:20px; height:20px; stroke:var(--ink-soft); fill:none; stroke-width:1.6; }
-
-.field{ margin-bottom:10px; }
-.field label{ display:block; font-size:11px; color:var(--ink-soft); margin-bottom:4px; }
-.field select, .field input[type=text], .field input[type=number]{
-  width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:5px; background:var(--panel-raised); font-size:12.5px;
-}
-.row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.seg{ display:flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
-.seg button{ flex:1; border:none; background:var(--panel-raised); padding:7px 4px; font-size:11.5px; color:var(--ink-soft); border-right:1px solid var(--line); }
-.seg button:last-child{ border-right:none; }
-.seg button.active{ background:var(--emphasis); color:var(--on-emphasis); }
-.hint{ font-size:11px; color:var(--grey); line-height:1.5; margin-top:6px; }
-
-/* ---------- stage ---------- */
-.stage-wrap{
-  flex:1; overflow:auto; display:flex; align-items:flex-start; justify-content:center;
-  padding:48px 24px; background:
-    radial-gradient(circle, var(--line) 1px, transparent 1px) 0 0/22px 22px;
-}
-#stageOuter{ flex:none; }
-.page{
-  position:relative; background:var(--paper); box-shadow:var(--shadow);
-  border:1px solid var(--paper-edge);
-}
-.page.transparent{
-  background-color:transparent;
-  background-image:
-    linear-gradient(45deg, var(--line) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--line) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--line) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--line) 75%);
-  background-size:16px 16px;
-  background-position:0 0, 0 8px, 8px -8px, -8px 0px;
-  opacity:1;
-}
-.page.transparent::before{
-  content:"";
-  position:absolute; inset:0; background:var(--paper); opacity:0.18; pointer-events:none;
-}
-.page .center-guide{ position:absolute; background:var(--accent2); opacity:0.35; pointer-events:none; }
-.page .center-guide.v{ top:0; bottom:0; width:1px; left:50%; }
-.page .center-guide.h{ left:0; right:0; height:1px; top:50%; }
-.page .margin-guide{ position:absolute; border:1px dashed var(--line-strong); opacity:0.7; pointer-events:none; }
-
-.elLayer, .ghostLayer{ position:absolute; inset:0; }
-.ghostLayer{ pointer-events:none; opacity:0.32; filter:grayscale(0.15); }
-
-.el{
-  position:absolute; cursor:grab; user-select:none;
-}
-.el:active{ cursor:grabbing; }
-.el.text{ display:flex; overflow:hidden; white-space:pre-wrap; word-break:break-word; }
-.el.image img{ width:100%; height:100%; display:block; pointer-events:none; }
-.el.rect{ }
-.el.ellipse{ border-radius:50%; }
-
-.selbox{ position:absolute; border:1.5px solid var(--accent2); pointer-events:none; }
-.selbox .handle{
-  position:absolute; width:9px; height:9px; background:#fff; border:1.5px solid var(--accent2); border-radius:2px;
-  transform:translate(-50%,-50%); pointer-events:auto;
-}
-.selbox .handle.rot{ border-radius:50%; top:-24px; }
-.selbox .rotline{ position:absolute; left:50%; top:-24px; width:1px; height:24px; background:var(--accent2); opacity:0.7; }
-
-/* ---------- right props panel ---------- */
-.empty-state{ color:var(--grey); font-size:12px; text-align:center; padding:30px 8px; line-height:1.6; }
-.prop-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
-.prop-type{ font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:700; }
-.icon-btn{ border:none; background:transparent; color:var(--grey); padding:4px; border-radius:4px; display:flex; }
-.icon-btn:hover{ background:var(--panel); color:var(--accent); }
-.icon-btn svg{ width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.7; }
-textarea.tcontent{ width:100%; min-height:64px; padding:7px 8px; border:1px solid var(--line); border-radius:5px; background:var(--panel-raised); font-size:12.5px; resize:vertical; }
-input[type=color]{ width:36px; height:28px; border:1px solid var(--line); border-radius:5px; padding:2px; background:var(--panel-raised); }
-input[type=range]{ width:100%; }
-.colorrow{ display:flex; align-items:center; gap:8px; }
-.smallnote{ font-size:10.5px; color:var(--grey); }
-.layerbtns{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-.layerbtns button{ border:1px solid var(--line); background:var(--panel-raised); border-radius:5px; padding:6px; font-size:11px; }
-.layerbtns button:hover{ border-color:var(--line-strong); }
-.dangerbtn{ width:100%; border:1px solid var(--line); background:var(--panel-raised); color:var(--accent); border-radius:5px; padding:7px; font-size:12px; font-weight:500; margin-top:4px; }
-.dangerbtn:hover{ background:var(--accent-soft); border-color:var(--accent); }
-.alignbtns{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
-.alignbtns button{ border:1px solid var(--line); background:var(--panel-raised); border-radius:5px; padding:7px 2px; font-size:10.5px; }
-.alignbtns button:hover{ border-color:var(--accent2); color:var(--accent2); }
-
-::-webkit-scrollbar{ width:10px; height:10px; }
-::-webkit-scrollbar-thumb{ background:var(--line-strong); border-radius:6px; }
-::-webkit-scrollbar-track{ background:transparent; }
-
-/* ---------- print ---------- */
-#printRoot{ display:none; }
-@media print{
-  body > *:not(#printRoot){ display:none !important; }
-  #printRoot{ display:block !important; }
-  #printRoot *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact; }
-  .pp{ position:relative; background:#fff; page-break-after:always; }
-  .pp:last-child{ page-break-after:auto; }
-  .pel{ position:absolute; }
-  .pel.text{ display:flex; white-space:pre-wrap; word-break:break-word; overflow:hidden; }
-  .pel.image img{ width:100%; height:100%; display:block; }
-  .pel.ellipse{ border-radius:50%; }
-}
-</style>
-</head>
-<body>
-<div class="app">
-
-  <header class="topbar">
-    <div class="brand"><span class="mark"></span>Duplex Align</div>
-    <input class="title-input mono" id="titleInput" value="Untitled Project" spellcheck="false">
-
-    <div class="side-tabs">
-      <button id="tabFront" class="active">Front</button>
-      <button id="tabBack">Back</button>
-    </div>
-
-    <div class="zoomgroup">
-      <button id="zoomOut" title="Zoom out">–</button>
-      <span class="zoomval mono" id="zoomVal">100%</span>
-      <button id="zoomIn" title="Zoom in">+</button>
-      <button id="zoomFit" title="Fit to window" style="width:auto;padding:0 6px;font-size:10.5px;">Fit</button>
-    </div>
-
-    <button class="tbtn toggle on" id="toggleGuides">Guides</button>
-    <button class="tbtn toggle on" id="toggleGhost">Ghost: other side</button>
-
-    <div class="spacer"></div>
-
-    <button class="tbtn" id="newProjectBtn">New</button>
-    <button class="tbtn" id="loadBtn">Open…</button>
-    <input type="file" id="loadFile" accept="application/json,.json">
-    <button class="tbtn primary" id="saveBtn">Save Project</button>
-    <button class="tbtn accent" id="printBtn">Print Both Sides</button>
-  </header>
-
-  <div class="sheetbar">
-    <span class="section-label" style="margin:0;">Sheets</span>
-    <div class="sheet-strip" id="sheetStrip"></div>
-    <button class="tbtn" id="addSheetBtn">+ Add sheet</button>
-    <button class="tbtn" id="dupSheetBtn">Duplicate</button>
-    <button class="tbtn" id="delSheetBtn">Delete</button>
-    <div class="hint" style="margin:0 0 0 4px;">Each sheet prints as its own front + back, in order — matching a printer's duplex feed.</div>
-  </div>
-
-  <div class="body">
-    <aside class="rail left">
-      <div class="section-label">Add to canvas</div>
-      <div class="add-grid">
-        <button class="add-btn" id="addText">
-          <svg viewBox="0 0 24 24"><path d="M4 6h16M12 6v13M9 19h6"/></svg>
-          Text
-        </button>
-        <button class="add-btn" id="addImageBtn">
-          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-5 5"/></svg>
-          Image
-          <input type="file" id="addImageFile" accept="image/*">
-        </button>
-        <button class="add-btn" id="addRect">
-          <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1"/></svg>
-          Rectangle
-        </button>
-        <button class="add-btn" id="addEllipse">
-          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="6.5"/></svg>
-          Ellipse
-        </button>
-      </div>
-
-      <div class="section-label">Paper</div>
-      <div class="field">
-        <label>Size</label>
-        <select id="paperSize">
-          <option value="letter">Letter — 8.5 × 11 in</option>
-          <option value="a4">A4 — 210 × 297 mm</option>
-          <option value="legal">Legal — 8.5 × 14 in</option>
-          <option value="a5">A5 — 148 × 210 mm</option>
-          <option value="tabloid">Tabloid — 11 × 17 in</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Orientation</label>
-        <div class="seg" id="orientSeg">
-          <button data-v="portrait" class="active">Portrait</button>
-          <button data-v="landscape">Landscape</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Duplex flip (how the printer turns the page)</label>
-        <div class="seg" id="flipSeg">
-          <button data-v="long" class="active">Long edge</button>
-          <button data-v="short">Short edge</button>
-        </div>
-        <div class="hint" id="flipHint"></div>
-      </div>
-      <div class="field">
-        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
-          <input type="checkbox" id="transparentBg" style="width:14px;height:14px;">
-          Transparent page background
-        </label>
-        <div class="hint">Off-white becomes fully transparent — useful for printing on colored stock, labels or transfers where you don't want a filled box behind your content. Shown as a checkerboard here for reference only; nothing prints there.</div>
-      </div>
-
-      <div class="section-label">Alignment</div>
-      <div class="hint">The faint "ghost" on the canvas shows the <b>other side</b>, mirrored the way it will actually land when the sheet is flipped over — use it to line up marks between front and back. Set the flip edge above to match your printer's duplex setting.</div>
-    </aside>
-
-    <main class="stage-wrap">
-      <div id="stageOuter">
-        <div class="page" id="page">
-          <div class="ghostLayer" id="ghostLayer"></div>
-          <div class="elLayer" id="elLayer"></div>
-          <div id="selBoxHost"></div>
-        </div>
-      </div>
-    </main>
-
-    <aside class="rail right" id="propsPanel">
-      <div class="empty-state">Select an element to edit its position, size and style — or add something new from the left panel.</div>
-    </aside>
-  </div>
-</div>
-<div id="printRoot"></div>
-<style id="pageSizeStyle"></style>
-
-<script>
 (function(){
 "use strict";
 
@@ -715,6 +326,11 @@ function selectElement(id){
   ui.selectedId = id;
   renderSelection();
   renderProps();
+  if(id && window.innerWidth <= 860){
+    const rightRail = document.querySelector(".rail.right");
+    const scrim = document.getElementById("railScrim");
+    if(rightRail && scrim){ rightRail.classList.add("open"); scrim.classList.add("show"); }
+  }
 }
 
 function bringLayer(dir){
@@ -1028,6 +644,25 @@ document.getElementById("delSheetBtn").onclick = ()=>{
 
 document.getElementById("titleInput").addEventListener("input", e=>{ state.meta.title = e.target.value; autosave(); });
 
+/* ===================== mobile rail drawers ===================== */
+(function(){
+  const leftRail = document.querySelector(".rail.left");
+  const rightRail = document.querySelector(".rail.right");
+  const scrim = document.getElementById("railScrim");
+  function closeRails(){
+    leftRail.classList.remove("open"); rightRail.classList.remove("open");
+    scrim.classList.remove("show");
+  }
+  function openRail(rail){
+    closeRails();
+    rail.classList.add("open");
+    scrim.classList.add("show");
+  }
+  document.getElementById("toggleLeftRail").onclick = ()=>openRail(leftRail);
+  document.getElementById("toggleRightRail").onclick = ()=>openRail(rightRail);
+  scrim.addEventListener("click", closeRails);
+})();
+
 document.getElementById("zoomIn").onclick = ()=>{ ui.zoom=Math.min(3, +(ui.zoom+0.1).toFixed(2)); renderPage(); };
 document.getElementById("zoomOut").onclick = ()=>{ ui.zoom=Math.max(0.2, +(ui.zoom-0.1).toFixed(2)); renderPage(); };
 document.getElementById("zoomFit").onclick = fitZoom;
@@ -1251,6 +886,3 @@ function init(){
 init();
 
 })();
-</script>
-</body>
-</html>

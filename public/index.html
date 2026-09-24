@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duplex Align</title>
+<meta name="description" content="A free browser tool for designing double-sided prints. Line up the front and back of a sheet with a live mirrored guide, then print duplex with confidence.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="module" src="/src/landing.js"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <svg class="mark" viewBox="0 0 24 24" width="22" height="22" fill="none">
+        <path class="mark-panel" d="M1.8 2.8 L10.1 5.8 L10.1 18.2 L1.8 21.2 Z"/>
+        <path class="mark-panel" d="M22.2 2.8 L13.9 5.8 L13.9 18.2 L22.2 21.2 Z"/>
+        <line class="mark-axis" x1="12" y1="1" x2="12" y2="23"/>
+      </svg>
+      Duplex Align
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+    </div>
+    <div class="nav-spacer"></div>
+    <a class="coffee-btn" href="https://buy.stripe.com/8x228r9HS0t9a131sbg3600" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" width="15" height="15"><path d="M4 9h13a3 3 0 010 6h-1M4 9v7a3 3 0 003 3h6a3 3 0 003-3v-1M4 9V6a1 1 0 011-1h9a1 1 0 011 1v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="label">Buy me a coffee</span>
+    </a>
+    <a class="btn btn-primary btn-sm" href="/app/">Open the app</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">FOR ANYONE WHO'S PRINTED THE BACK UPSIDE DOWN</span>
+      <h1>Get the back of the page to actually <em>line up</em> with the front.</h1>
+      <p class="hero-sub">Duplex Align is a free browser tool for designing double-sided prints — flyers, cards, labels, zines. Design each side, align them with a live mirrored guide, and print duplex without the trial and error.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="/app/">Open the app — it's free</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <p class="hero-trust">No install. No account. Nothing you design ever leaves your browser.</p>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <div class="flipcard">
+        <div class="flipface front">
+          <div class="flip-title">Front</div>
+          <span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
+          <div class="flip-shape circle"></div>
+          <div class="flip-shape bar"></div>
+        </div>
+        <div class="flipface back">
+          <div class="flip-title">Back</div>
+          <span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
+          <div class="flip-shape ghost"></div>
+          <div class="flip-shape barghost"></div>
+          <div class="flip-shape solidcircle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="features" class="features">
+  <div class="container">
+    <div class="section-head">
+      <h2>Everything you need to trust the print button</h2>
+      <p>No more printing test pages, holding them up to a window, and guessing. Design both sides with the alignment built in.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0116 0M4 12a8 8 0 008 8M4 12a8 8 0 018-8" stroke-linecap="round"/><path d="M12 4v16" stroke-dasharray="2 3"/></svg>
+        </div>
+        <h3>Mirrored ghost guide</h3>
+        <p>Switch to the back and see a faint, correctly mirrored copy of the front right on the canvas — line up marks edge for edge.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        </div>
+        <h3>Multi-sheet duplex printing</h3>
+        <p>Add as many sheets as your document needs. Front and back print in the exact order a duplex printer expects.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke-linecap="round"/></svg>
+        </div>
+        <h3>100% local &amp; private</h3>
+        <p>Everything runs in your browser. Your images and layouts are never uploaded anywhere — not even to us.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 4h10l4 4v12a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M9 4v5h7V4M8 14h8v6H8z"/></svg>
+        </div>
+        <h3>Save &amp; reopen anytime</h3>
+        <p>Export a project file and pick up exactly where you left off — next week, on another computer, for a reprint.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="container">
+    <div class="section-head">
+      <h2>Three steps to a sheet that registers</h2>
+      <p>The whole workflow is built around the one thing that usually goes wrong: the back not matching the front.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num mono">01</div>
+        <h3>Design the front</h3>
+        <p>Add text, images and shapes to the front of your sheet, and position them exactly where you want on the page.</p>
+      </div>
+      <div class="step">
+        <div class="step-num mono">02</div>
+        <h3>Flip &amp; align the back</h3>
+        <p>Switch to Back. A mirrored ghost of the front shows through, so you can match up logos, crop marks or borders precisely.</p>
+      </div>
+      <div class="step">
+        <div class="step-num mono">03</div>
+        <h3>Print both sides</h3>
+        <p>Hit print, turn on double-sided in the dialog, and the sheet comes out of the tray registered — front and back, every time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="cta-band">
+      <div class="container">
+        <h2>Line up your next print run.</h2>
+        <p>Free, fast, and it stays on your machine. Open the app and start designing — no sign-up required.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="/app/">Open the app</a>
+          <a class="btn btn-ghost" href="https://buy.stripe.com/8x228r9HS0t9a131sbg3600" target="_blank" rel="noopener">Buy me a coffee</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-inner">
+    <div>
+      <div class="footer-brand">
+        <svg class="mark" viewBox="0 0 24 24" width="16" height="16" fill="none">
+          <path class="mark-panel" d="M1.8 2.8 L10.1 5.8 L10.1 18.2 L1.8 21.2 Z"/>
+          <path class="mark-panel" d="M22.2 2.8 L13.9 5.8 L13.9 18.2 L22.2 21.2 Z"/>
+          <line class="mark-axis" x1="12" y1="1" x2="12" y2="23"/>
+        </svg>
+        Duplex Align
+      </div>
+      <div class="footer-tagline">Built for anyone who prints on both sides of the page.</div>
+    </div>
+    <div class="footer-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="/app/">Open the app</a>
+      <a href="https://buy.stripe.com/8x228r9HS0t9a131sbg3600" target="_blank" rel="noopener">Buy me a coffee</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
